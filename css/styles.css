@@ -276,6 +276,18 @@ body {
   min-height: 240px;
 }
 
+.card-trip-computer {
+  grid-column: span 6;
+}
+
+.card-tpms {
+  grid-column: span 6;
+}
+
+.card-extra-sensors {
+  grid-column: span 12;
+}
+
 .card-stats-grid {
   grid-column: span 12;
   display: grid;

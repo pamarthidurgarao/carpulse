@@ -48,6 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
     engineLoad: true
   };
 
+  // --- COMPATIBILITY CHECKS ---
+  const compatibilityNotice = document.getElementById('compatibilityNotice');
+  const supportsBluetooth = !!navigator.bluetooth;
+  const supportsSerial = !!navigator.serial;
+
+  if (!supportsBluetooth && !supportsSerial) {
+    if (compatibilityNotice) compatibilityNotice.style.display = 'block';
+    btnConnectSerial.style.opacity = '0.4';
+    btnConnectBluetooth.style.opacity = '0.4';
+  } else {
+    if (!supportsSerial) {
+      btnConnectSerial.style.opacity = '0.4';
+      btnConnectSerial.title = 'USB Serial is not supported on this browser/device';
+    }
+    if (!supportsBluetooth) {
+      btnConnectBluetooth.style.opacity = '0.4';
+      btnConnectBluetooth.title = 'Web Bluetooth is not supported on this browser/device';
+    }
+  }
+
   // --- VIEW ROUTING ---
   navItems.forEach(item => {
     item.addEventListener('click', () => {

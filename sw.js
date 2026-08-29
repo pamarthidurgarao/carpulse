@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carpulse-v2';
+const CACHE_NAME = 'carpulse-v3';
 const ASSETS = [
   './',
   './index.html',

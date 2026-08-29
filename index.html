@@ -69,6 +69,15 @@
           <span>Disconnect</span>
         </button>
       </div>
+      <!-- Compatibility Warning Banner -->
+      <div id="compatibilityNotice" style="margin-top: 15px; padding: 12px 16px; border-radius: 12px; background: rgba(255, 51, 102, 0.1); border: 1px solid rgba(255, 51, 102, 0.2); font-size: 13px; color: #ff5c85; display: none; line-height: 1.4;">
+        <strong>⚠️ Hardware Connection Not Supported:</strong> Your current browser or connection (non-HTTPS) does not support Web Bluetooth or Web Serial. 
+        <ul style="margin-left: 20px; margin-top: 6px;">
+          <li>On <strong>iPhone & iPad</strong>: Run this app inside a Web Bluetooth browser like <strong>Bluefy</strong> or <strong>WebBLE</strong>.</li>
+          <li>On <strong>Android & Desktop</strong>: Use <strong>Chrome</strong> or <strong>Edge</strong> (requires HTTPS hosting).</li>
+        </ul>
+        Use <strong>Sim Mode</strong> to test the telemetry dashboards.
+      </div>
     </header>
 
     <!-- SECTION: Dashboard View -->
@@ -141,7 +150,7 @@
         </div>
 
         <!-- NEW: Trip Computer Card -->
-        <div class="card card-trip-computer" style="grid-column: span 6;">
+        <div class="card card-trip-computer">
           <div class="panel-header">Trip Computer</div>
           <div class="trip-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px;">
             <div class="stat-box">
@@ -175,7 +184,7 @@
         </div>
 
         <!-- NEW: TPMS Tire Pressure Card -->
-        <div class="card card-tpms" style="grid-column: span 6;">
+        <div class="card card-tpms">
           <div class="panel-header">Tire Pressure Monitor (TPMS)</div>
           <div class="tpms-layout" style="display: flex; align-items: center; justify-content: space-around; margin-top: 15px; position: relative;">
             
@@ -218,7 +227,7 @@
         </div>
 
         <!-- NEW: Extra OBD2 Sensors Panel -->
-        <div class="card card-extra-sensors" style="grid-column: span 12;">
+        <div class="card card-extra-sensors">
           <div class="panel-header">Additional Diagnostics Sensors</div>
           <div class="trip-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px;">
             <div class="stat-box">
