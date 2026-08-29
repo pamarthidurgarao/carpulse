@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="CarPulse: Premium CarPlay-compatible OBD2 Progressive Web App for real-time car diagnostics and performance tracking.">
+  <meta name="theme-color" content="#0d0f12">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icon.svg">
+  <title>CarPulse OBD2 Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- CarPlay Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="logo-container" id="sidebarLogo" title="App Info">
+      <img src="assets/icon.svg" class="logo-img" alt="CarPulse Logo">
+    </div>
+    
+    <nav class="nav-menu">
+      <button class="nav-item active" data-view="dashboard" id="navDashboard">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+        <span>Dash</span>
+      </button>
+      
+      <button class="nav-item" data-view="diagnostics" id="navDiagnostics">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <span>Scan</span>
+      </button>
+      
+      <button class="nav-item" data-view="graph" id="navGraph">
+        <svg viewBox="0 0 24 24">
+          <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+        </svg>
+        <span>Graph</span>
+      </button>
+    </nav>
+    
+    <div class="status-indicator">
+      <div class="connection-dot" id="connectionDot"></div>
+    </div>
+  </aside>
+
+  <!-- Main View Container -->
+  <main class="main-content">
+    
+    <!-- Connection Hub -->
+    <header class="connection-panel">
+      <div class="panel-header">
+        <span>Connection Hub</span>
+        <span id="connectionStatusText" style="font-size: 13px; color: var(--accent-red); font-weight: 600;">Disconnected</span>
+      </div>
+      <div class="connection-actions">
+        <button class="btn btn-primary" id="btnConnectSerial" title="Connect using USB ELM327 Adapter">
+          <span>USB Serial</span>
+        </button>
+        <button class="btn btn-accent" id="btnConnectBluetooth" title="Connect using Bluetooth BLE OBD2 Adapter">
+          <span>BLE Dongle</span>
+        </button>
+        <button class="btn" id="btnConnectSimulation" style="border-color: var(--accent-green); color: var(--accent-green);">
+          <span>Sim Mode</span>
+        </button>
+        <button class="btn btn-danger" id="btnDisconnect" style="display: none;">
+          <span>Disconnect</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- SECTION: Dashboard View -->
+    <section id="viewDashboard" class="view-section active">
+      <div class="dashboard-grid">
+        
+        <!-- RPM Gauge -->
+        <div class="card card-gauge-large">
+          <div class="gauge-svg-container">
+            <svg class="gauge-svg" viewBox="0 0 120 120" width="100%" height="100%">
+              <circle class="gauge-bg" cx="60" cy="60" r="54"></circle>
+              <circle class="gauge-fill" id="rpmGaugeFill" cx="60" cy="60" r="54"></circle>
+            </svg>
+            <div class="gauge-text-overlay">
+              <span class="gauge-num" id="valRpm">0</span>
+              <span class="gauge-label">RPM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Speed Gauge -->
+        <div class="card card-gauge-large">
+          <div class="gauge-svg-container">
+            <svg class="gauge-svg" viewBox="0 0 120 120" width="100%" height="100%">
+              <circle class="gauge-bg" cx="60" cy="60" r="54"></circle>
+              <circle class="gauge-fill" id="speedGaugeFill" cx="60" cy="60" r="54" style="stroke: var(--accent-green);"></circle>
+            </svg>
+            <div class="gauge-text-overlay">
+              <span class="gauge-num" id="valSpeed">0</span>
+              <span class="gauge-label">KM/H</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secondary Telemetry Grid -->
+        <div class="card-stats-grid">
+          
+          <div class="stat-box">
+            <span class="stat-label">Coolant Temp</span>
+            <div class="stat-value-container">
+              <span class="stat-value" id="valCoolant">--</span>
+              <span class="stat-unit">°C</span>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <span class="stat-label">Engine Load</span>
+            <div class="stat-value-container">
+              <span class="stat-value" id="valLoad">--</span>
+              <span class="stat-unit">%</span>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <span class="stat-label">Throttle Pos</span>
+            <div class="stat-value-container">
+              <span class="stat-value" id="valThrottle">--</span>
+              <span class="stat-unit">%</span>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <span class="stat-label">Battery Voltage</span>
+            <div class="stat-value-container">
+              <span class="stat-value" id="valVoltage">--</span>
+              <span class="stat-unit">V</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- NEW: Trip Computer Card -->
+        <div class="card card-trip-computer" style="grid-column: span 6;">
+          <div class="panel-header">Trip Computer</div>
+          <div class="trip-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px;">
+            <div class="stat-box">
+              <span class="stat-label">Trip Time</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valTripTime">00:00</span>
+              </div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Distance</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valTripDist">0.0</span>
+                <span class="stat-unit">km</span>
+              </div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Avg Speed</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valTripAvgSpeed">0</span>
+                <span class="stat-unit">km/h</span>
+              </div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Fuel Used</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valTripFuel">0.00</span>
+                <span class="stat-unit">L</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW: TPMS Tire Pressure Card -->
+        <div class="card card-tpms" style="grid-column: span 6;">
+          <div class="panel-header">Tire Pressure Monitor (TPMS)</div>
+          <div class="tpms-layout" style="display: flex; align-items: center; justify-content: space-around; margin-top: 15px; position: relative;">
+            
+            <!-- Left Tires -->
+            <div style="display: flex; flex-direction: column; gap: 40px; text-align: right;">
+              <div class="tpms-box" id="tpmsFL">
+                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: #fff;"><span id="valTpmsFL">--</span> <span style="font-size: 11px; color:#64748b;">PSI</span></div>
+                <div style="font-size: 11px; color: #64748b;">FL • <span id="valTpmsFLTemp">--</span>°C</div>
+              </div>
+              <div class="tpms-box" id="tpmsRL">
+                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: #fff;"><span id="valTpmsRL">--</span> <span style="font-size: 11px; color:#64748b;">PSI</span></div>
+                <div style="font-size: 11px; color: #64748b;">RL • <span id="valTpmsRLTemp">--</span>°C</div>
+              </div>
+            </div>
+
+            <!-- Chassis graphic placeholder using CSS styling -->
+            <div class="car-chassis-graphic" style="position: relative; width: 60px; height: 110px; border: 3px solid rgba(255,255,255,0.15); border-radius: 12px; background: rgba(255,255,255,0.01);">
+              <!-- Cabin line -->
+              <div style="position: absolute; top: 25px; left: 8px; right: 8px; height: 50px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px;"></div>
+              <!-- Tires positions markers -->
+              <div style="position: absolute; top: 15px; left: -8px; width: 6px; height: 16px; background: #555; border-radius: 2px;"></div>
+              <div style="position: absolute; top: 15px; right: -8px; width: 6px; height: 16px; background: #555; border-radius: 2px;"></div>
+              <div style="position: absolute; bottom: 15px; left: -8px; width: 6px; height: 16px; background: #555; border-radius: 2px;"></div>
+              <div style="position: absolute; bottom: 15px; right: -8px; width: 6px; height: 16px; background: #555; border-radius: 2px;"></div>
+            </div>
+
+            <!-- Right Tires -->
+            <div style="display: flex; flex-direction: column; gap: 40px; text-align: left;">
+              <div class="tpms-box" id="tpmsFR">
+                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: #fff;"><span id="valTpmsFR">--</span> <span style="font-size: 11px; color:#64748b;">PSI</span></div>
+                <div style="font-size: 11px; color: #64748b;">FR • <span id="valTpmsFRTemp">--</span>°C</div>
+              </div>
+              <div class="tpms-box" id="tpmsRR">
+                <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: #fff;"><span id="valTpmsRR">--</span> <span style="font-size: 11px; color:#64748b;">PSI</span></div>
+                <div style="font-size: 11px; color: #64748b;">RR • <span id="valTpmsRRTemp">--</span>°C</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- NEW: Extra OBD2 Sensors Panel -->
+        <div class="card card-extra-sensors" style="grid-column: span 12;">
+          <div class="panel-header">Additional Diagnostics Sensors</div>
+          <div class="trip-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px;">
+            <div class="stat-box">
+              <span class="stat-label">Intake Temp</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valIntakeTemp">--</span>
+                <span class="stat-unit">°C</span>
+              </div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Ambient Temp</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valAmbientTemp">--</span>
+                <span class="stat-unit">°C</span>
+              </div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Baro Pressure</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valBaro">--</span>
+                <span class="stat-unit">kPa</span>
+              </div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Fuel Level</span>
+              <div class="stat-value-container">
+                <span class="stat-value" id="valFuel">--</span>
+                <span class="stat-unit">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION: Diagnostics View -->
+    <section id="viewDiagnostics" class="view-section">
+      <div class="diag-container">
+        
+        <!-- Controls & Scanning status -->
+        <div class="card diag-controls-card">
+          <div class="panel-header">OBD2 ECU Diagnostic Scan</div>
+          
+          <div class="diag-status-display">
+            <div class="diag-icon-status" id="diagIconStatus">
+              <!-- Engine Check Icon -->
+              <svg viewBox="0 0 24 24">
+                <path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/>
+              </svg>
+            </div>
+            <div class="diag-status-title" id="diagStatusTitle">ECU Not Scanned</div>
+            <div class="diag-status-desc" id="diagStatusDesc">Connect to an OBD2 reader to run system fault analysis.</div>
+          </div>
+          
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-accent" id="btnScanDtc" style="flex-grow: 1;">Scan Codes</button>
+            <button class="btn btn-danger" id="btnClearDtc" style="flex-grow: 1;">Clear Codes</button>
+          </div>
+        </div>
+
+        <!-- List of Trouble Codes -->
+        <div class="card code-list-card">
+          <div class="panel-header">Active Trouble Codes (DTC)</div>
+          <div class="code-list-container" id="dtcListContainer">
+            <div class="diag-status-desc" style="text-align: center; margin-top: 40px;">No diagnostic fault codes active or scanned.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION: Live Graphs -->
+    <section id="viewGraph" class="view-section">
+      <div class="graph-container">
+        
+        <div class="graph-legend">
+          <div class="legend-item" data-param="rpm" style="color: var(--accent-cyan);">
+            <div class="legend-color" style="background-color: var(--accent-cyan);"></div>
+            <span>Engine RPM (x1000)</span>
+          </div>
+          <div class="legend-item" data-param="speed" style="color: var(--accent-green);">
+            <div class="legend-color" style="background-color: var(--accent-green);"></div>
+            <span>Speed (KM/H)</span>
+          </div>
+          <div class="legend-item" data-param="coolantTemp" style="color: var(--accent-yellow);">
+            <div class="legend-color" style="background-color: var(--accent-yellow);"></div>
+            <span>Coolant Temp (°C)</span>
+          </div>
+          <div class="legend-item" data-param="engineLoad" style="color: var(--accent-red);">
+            <div class="legend-color" style="background-color: var(--accent-red);"></div>
+            <span>Engine Load (%)</span>
+          </div>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="liveTelemetryChart"></canvas>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/simulation.js"></script>
+  <script src="js/obd.js"></script>
+  <script src="js/app.js"></script>
+  
+  <script>
+    // Register PWA service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker Registered successfully', reg.scope))
+          .catch(err => console.warn('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
