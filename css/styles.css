@@ -616,16 +616,24 @@ body {
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .card-gauge-large {
-    grid-column: span 1;
-    min-height: 200px;
+  .card-gauge-large,
+  .card-trip-computer,
+  .card-tpms,
+  .card-extra-sensors {
+    grid-column: span 1 !important;
+    min-height: auto;
   }
 
   .card-stats-grid {
-    grid-column: span 1;
+    grid-column: span 1 !important;
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card-extra-sensors .trip-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 
   .diag-container {
@@ -637,6 +645,39 @@ body {
   .code-list-card {
     margin-top: 16px;
     overflow-y: visible;
+  }
+}
+
+/* Tablet Layout Adaptability */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+
+  .card-gauge-large {
+    grid-column: span 3;
+  }
+
+  .card-stats-grid {
+    grid-column: span 6;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card-trip-computer {
+    grid-column: span 3;
+  }
+
+  .card-tpms {
+    grid-column: span 3;
+  }
+
+  .card-extra-sensors {
+    grid-column: span 6;
+  }
+
+  .card-extra-sensors .trip-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
